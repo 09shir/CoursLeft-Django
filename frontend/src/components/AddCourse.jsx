@@ -16,6 +16,15 @@ const AddCourse = () => {
     const [isLoading, setLoading] = useState(true)
     const [coursesList2, setCoursesList2] = useState(coursesList)
 
+    const [availabilitySection, setAvailabilitySection] = useState({
+        availableTerm: [],
+    })
+
+    const [showPredictButton, setShowPredictButton] = useState(false)
+    const [showAvailability, setShowAvailability] = useState(false)
+    const [maxWorkLoadWarning, setMaxWorkLoadWarning] = useState(false)
+    const [repeatWarning, setRepeatWarning] = useState(false)
+
     useEffect(() => {
         axios
           .get("/api/terms/")
@@ -42,6 +51,12 @@ const AddCourse = () => {
         setCoursesList2(coursesList.filter(course => 
             (course.toLowerCase()).includes(e.target.value.toLowerCase())
         ))
+        if (e.target.value.length > 0){
+            setShowPredictButton(true)
+        }
+        else{
+            setShowPredictButton(false)
+        }
     }
 
     const handleCourseTermInputChange = (e) => {
@@ -53,9 +68,6 @@ const AddCourse = () => {
 		    courseTerm: e.target.value,
 	    }));
     }
-
-    const [maxWorkLoadWarning, setMaxWorkLoadWarning] = useState(false)
-    const [repeatWarning, setRepeatWarning] = useState(false)
 
     const submit = () => {
 
@@ -99,11 +111,6 @@ const AddCourse = () => {
             }
           })
     }
-
-    const [showAvailability, setShowAvailability] = useState(false)
-    const [availabilitySection, setAvailabilitySection] = useState({
-        availableTerm: [],
-    })
     
     const checkAvailability = async () => {
 
@@ -176,9 +183,9 @@ const AddCourse = () => {
                 </FormGroup>
             </Form>
             <br></br>
-            <Button className="btn btn-primary" onClick={submit}> Save </Button>
+            <Button className="btn btn-primary" onClick={submit}> Add </Button>
             &nbsp;&nbsp;&nbsp;
-            <Button className="btn btn-primary" onClick={checkAvailability}> Predict Availability </Button>
+            {showPredictButton ? <Button className="btn btn-primary" onClick={checkAvailability}> Predict Availability </Button> : null}
             <br></br><br></br>
             {showAvailability ? <h5>{
                 <>
