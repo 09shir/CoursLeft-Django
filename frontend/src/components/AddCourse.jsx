@@ -211,9 +211,7 @@ const AddCourse = () => {
                 {availabilitySection.availableTerm.length === 0 ? <><button className="btn btn-outline-primary">Not Offered</button>&nbsp;</>: 
                 (availabilitySection.availableTerm)?.map(term => (
                     <>
-                        <Tooltip title={term + "sd"}>
-                            <button className="btn btn-outline-primary">{term}</button>
-                        </Tooltip>
+                        <button className="btn btn-outline-primary">{term}</button>
                         &nbsp;&nbsp;
                     </>
                 ))}
