@@ -99,3 +99,13 @@ body
   font-family: Papyrus;
   font-size:large;
 }
+
+.course-field-left {
+  width: 40%;
+  float: left;
+  padding: 0px;
+}  
+.button-field-right {
+  width: 10%;
+  padding: 0x;
+}  

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { coursesList } from './functions/courses';
 import { parseFullNameToCourseID } from './functions/courseFunctions';
-import { predict } from './functions/termsPrediction';
+import { predict, coursePrevTerms } from './functions/termsPrediction';
 import axios from "axios";
 import {
     Button,
     Form,
     FormGroup,
   } from "react-bootstrap";
+import SchoolIcon from '@mui/icons-material/School';
+import EventIcon from '@mui/icons-material/Event';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { IconButton } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 
 const AddCourse = () => {
@@ -18,6 +23,7 @@ const AddCourse = () => {
 
     const [availabilitySection, setAvailabilitySection] = useState({
         availableTerm: [],
+        pastTerms: []
     })
 
     const [showPredictButton, setShowPredictButton] = useState(false)
@@ -114,15 +120,20 @@ const AddCourse = () => {
     
     const checkAvailability = async () => {
 
-        let array = []
-        await predict(values.courseName).then((val) => 
-            array = val
+        let predictedTerms = []
+        let pastTerms = []
+        await predict(values.courseName).then((val) => (
+            predictedTerms = val.predictResult,
+            pastTerms = val.pastTerms
+        )
         )
 
         setAvailabilitySection((section) => ({
             ...section,
-            availableTerm: (values.courseName === '') ? [] : array
+            availableTerm: (values.courseName === '') ? [] : predictedTerms,
+            pastTerms: (values.courseName === '') ? [] : pastTerms
         }))
+        
         console.log(availabilitySection)
 
         setShowAvailability(true)
@@ -152,12 +163,12 @@ const AddCourse = () => {
             <br></br>
             <Form>
                 <FormGroup>
-                    <Form.Label>Course ID</Form.Label>
+                    <Form.Label>Course ID <SchoolIcon color="primary" fontSize="small"/></Form.Label>
                     <Form.Control type="text" 
                         id="course-title" 
                         value={values.courseName}
                         onChange={handleCourseNameInputChange}
-                        placeholder="Enter Course ID"
+                        placeholder="Enter Course ID "
                         aria-label="Default select example">
                     </Form.Control>
                     <Form.Select 
@@ -170,7 +181,7 @@ const AddCourse = () => {
 
                 <br></br>
                 <FormGroup>
-                    <Form.Label>Term</Form.Label>
+                    <Form.Label>Term <EventIcon color="primary" fontSize="small"/> </Form.Label>
                     <Form.Select type="text" 
                         id="course-term" 
                         value={values.courseTerm}
@@ -185,18 +196,49 @@ const AddCourse = () => {
             <br></br>
             <Button className="btn btn-primary" onClick={submit}> Add </Button>
             &nbsp;&nbsp;&nbsp;
-            {showPredictButton ? <Button className="btn btn-primary" onClick={checkAvailability}> Predict Availability </Button> : null}
+            {showPredictButton ? <span>
+                <Button className="btn btn-primary" onClick={checkAvailability}> Predict Availability </Button> 
+                &nbsp;&nbsp;
+                <Tooltip placement="top" title={"Predicts the terms which the course will be available"}>
+                    <IconButton size="small">
+                        <HelpOutlineIcon color="primary" fontSize="small"/>
+                    </IconButton>
+                </Tooltip>
+            </span> : null}
             <br></br><br></br>
             {showAvailability ? <h5>{
                 <>
-                {availabilitySection.availableTerm.length === 0 ? <button className="btn btn-outline-primary">Not Offered</button>: 
+                {availabilitySection.availableTerm.length === 0 ? <><button className="btn btn-outline-primary">Not Offered</button>&nbsp;</>: 
                 (availabilitySection.availableTerm)?.map(term => (
-                  <>
-                    <button className="btn btn-outline-primary">{term}</button>
-                    &nbsp;&nbsp;
-                  </>
+                    <>
+                        <Tooltip title={term + "sd"}>
+                            <button className="btn btn-outline-primary">{term}</button>
+                        </Tooltip>
+                        &nbsp;&nbsp;
+                    </>
                 ))}
-                 <br></br><br></br>
+                <Tooltip placement="bottom" 
+                    title={
+                        <React.Fragment>
+                            <p><b>
+                                {/* {values.courseName.toUpperCase()}'s Available Terms ({availabilitySection.pastTerms[availabilitySection.pastTerms.length-1][0]} ~ {}
+                                {availabilitySection.pastTerms[0][0]}):  */}
+                                {values.courseName.toUpperCase()}'s Available Terms (2022-2023)
+                                {/* {values.courseName.toUpperCase()}'s availability since 2014: */}
+                            </b></p>
+                            {availabilitySection.pastTerms.length === 0 ? <>Never Offered</> : 
+                                <thead>
+                                    {(availabilitySection.pastTerms)?.map(term => (
+                                        <tr>{term[1].charAt(0).toUpperCase() + term[1].slice(1) + " " + term[0]}</tr>
+                                    ))}
+                                </thead>}
+                        </React.Fragment>
+                    }>
+                    <IconButton size="small">
+                        <HelpOutlineIcon color="primary" fontSize="small"/>
+                    </IconButton>
+                </Tooltip>
+                <br></br><br></br>
                 <p style={{ fontSize: 11 }} > ^ Prediction model based on course offering data from past two years. Aware of inaccuracy.</p>
                 </>
             }</h5> : null}

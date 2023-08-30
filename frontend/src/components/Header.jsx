@@ -25,7 +25,7 @@ const Header = () => {
                         <NavDropdown.Item href="https://www.github.com/09shir" target="_blank">
                             GitHub
                         </NavDropdown.Item>
-                        <NavDropdown.Item href="https://www.linkedin.com/in/roy-shi-6b669a1b2/" target="_blank">
+                        <NavDropdown.Item href="https://www.linkedin.com/in/roy-sh1" target="_blank">
                             LinkedIn
                         </NavDropdown.Item>
                         <NavDropdown.Divider />

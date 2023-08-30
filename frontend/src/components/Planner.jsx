@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { getNextTerm, getCurrentTerm, getCurrentYear } from './functions/terms'
 import axios from "axios";
+import BackspaceIcon from '@mui/icons-material/Backspace';
+import { IconButton } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 class Planner extends Component {
     constructor(props) {
@@ -94,12 +97,17 @@ class Planner extends Component {
         const items = this.state.courses.filter((item) => item.term === term.id)
         return items.map((item) => (
             <tr key={item.id}>
-                <span>
+                <span class='course-field-left'>
                     {item.name}
                 </span>
-                <span>
-                    <button className="btn btn-outline-danger"
-                        onClick={() => this.handleCourseDelete(item)}> Delete </button>
+                <span class='button-field-right'>
+                    {/* <button className="btn btn-outline-danger"
+                        onClick={() => this.handleCourseDelete(item)}> Delete </button> */}
+                    <Tooltip placement="right" title={"Remove " + item.name}>
+                        <IconButton onClick={() => this.handleCourseDelete(item)}>
+                            <BackspaceIcon fontSize="medium"/>
+                        </IconButton>
+                    </Tooltip>
                 </span>
             </tr>
         ))
@@ -151,9 +159,13 @@ class Planner extends Component {
                 </ul>
                 <div className="container2">
                     <div className="vertical-center">
-                        <button className="btn btn-secondary" onClick={() => this.createTerm()}> Add Term </button>
+                        <button className="btn btn-secondary" onClick={() => this.deleteTerm()}> 
+                            Add Term
+                        </button>
                         &nbsp;
-                        <button className="btn btn-secondary" onClick={() => this.deleteTerm()}> Delete Term </button>
+                        <button className="btn btn-secondary" onClick={() => this.deleteTerm()}> 
+                            Delete Term
+                        </button>
                     </div>
                 </div>
                 <br></br><br></br><br></br>

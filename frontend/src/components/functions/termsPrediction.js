@@ -33,8 +33,9 @@ async function api(course, year, term){
     }
 }
 
-
-async function coursePrevTerms(course_input){
+// @param1: course name
+// @param2: boolean (true: only past 2 years; false: all past terms)
+async function coursePrevTerms(course_input, pastTwoYears){
 
     var courseInput = course_input
     var course = "/"
@@ -58,8 +59,14 @@ async function coursePrevTerms(course_input){
 
     // var course = "/" + department + "/" + number
     // only look for course openings after 2020 
-    const year = [2022,2023]
-    const term = ["spring", "summer", "fall"]
+    const term = ["fall", "summer", "spring"]
+    let year = []
+    if (pastTwoYears){
+        year = [2023,2022]
+    }
+    else{
+        year = [2023,2022,2021,2020,2019,2018,2017,2016,2015,2014]
+    }
 
     var ret = []
 
@@ -83,33 +90,40 @@ async function coursePrevTerms(course_input){
 
 // prediction algorithm
 // returns NA if not available
-// return array of terms available [spring, summer, fall]
+// return:
+//      {predictResult: array of terms predicted [spring, summer, fall], 
+//       pastTerms: array of past terms available}
 async function predict(course_input){
 
     try{
-        let ret = await coursePrevTerms(course_input)
+        let ret = await coursePrevTerms(course_input, true)
+        //let ret2 = await coursePrevTerms(course_input, false)
+        // spr, summer, fall
+        let termCount = [0,0,0]
+        const term = ["spring", "summer", "fall"]
 
-    // spr, summer, fall
-    let termCount = [0,0,0]
-    const term = ["spring", "summer", "fall"]
+        ret.forEach((item) =>{
+            for (let i = 0; i < 3; i++){
+                if (item[1] === term[i]){
+                    termCount[i]++; 
+                    break;
+                }
+            }
+        })
 
-    ret.forEach((item) =>{
+        let ret_terms = []
         for (let i = 0; i < 3; i++){
-            if (item[1] === term[i]){termCount[i]++; break;}
+            if (termCount[i] != 0){
+                ret_terms.push(term[i] + ' ')
+            }
         }
-    })
-
-    let ret_terms = []
-    for (let i = 0; i < 3; i++){
-        if (termCount[i] != 0){
-            ret_terms.push(term[i] + ' ')
+        console.log(termCount)
+        console.log(ret)
+        //console.log(ret_terms)
+        return {
+            predictResult: ret_terms, 
+            pastTerms: ret
         }
-    }
-    console.log(termCount)
-    console.log(ret)
-    //console.log(ret_terms)
-    return ret_terms
-    //return ['bruh']
     }
     catch(err){
         console.log(err)
