@@ -4,6 +4,9 @@ An advanced course planner web application that enables SFU students to plan ahe
 
 ![FOTP](./frontend/src/assets/demo3.png)
 
+![FOTP](./frontend/src/assets/gif-demo-2.gif)
+> Slowed-down Gif due to poor mp4-to-gif conversion
+
 # Usage
 
 To use this template to start your own project:
