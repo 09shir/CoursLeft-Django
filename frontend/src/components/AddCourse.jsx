@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { coursesList } from './functions/courses';
 import { parseFullNameToCourseID } from './functions/courseFunctions';
-import { predict, coursePrevTerms } from './functions/termsPrediction';
+import { predict } from './functions/termsPrediction';
 import axios from "axios";
 import {
     Button,
@@ -92,10 +92,10 @@ const AddCourse = () => {
           .then((res) => { 
             let count = 0
             let repeat = false
-            res.data.map(course => {
-                if (course.term == ret.term){
+            res.data.forEach(course => {
+                if (course.term.toString() === ret.term){
                     count++;
-                    if (course.name == ret.name){
+                    if (course.name.toString() === ret.name){
                         repeat = true
                     }
                 }
@@ -122,10 +122,10 @@ const AddCourse = () => {
 
         let predictedTerms = []
         let pastTerms = []
-        await predict(values.courseName).then((val) => (
-            predictedTerms = val.predictResult,
+        await predict(values.courseName).then((val) => {
+            predictedTerms = val.predictResult;
             pastTerms = val.pastTerms
-        )
+        }
         )
 
         setAvailabilitySection((section) => ({

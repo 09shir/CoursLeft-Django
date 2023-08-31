@@ -73,7 +73,7 @@ async function coursePrevTerms(course_input, pastTwoYears){
     for (const yr of year){
         for (const tm of term){
             var data = await api(course,yr,tm);
-            if (data != null){
+            if (data !== undefined){
                 ret.push([yr, tm]);
             }
         }
@@ -113,7 +113,7 @@ async function predict(course_input){
 
         let ret_terms = []
         for (let i = 0; i < 3; i++){
-            if (termCount[i] != 0){
+            if (termCount[i] !== 0){
                 ret_terms.push(term[i] + ' ')
             }
         }
