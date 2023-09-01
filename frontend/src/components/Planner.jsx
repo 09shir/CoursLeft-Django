@@ -97,10 +97,10 @@ class Planner extends Component {
         const items = this.state.courses.filter((item) => item.term === term.id)
         return items.map((item) => (
             <tr key={item.id}>
-                <span class='course-field-left'>
+                <span className='course-field-left'>
                     {item.name}
                 </span>
-                <span class='button-field-right'>
+                <span className='button-field-right'>
                     {/* <button className="btn btn-outline-danger"
                         onClick={() => this.handleCourseDelete(item)}> Delete </button> */}
                     <Tooltip placement="right" title={"Remove " + item.name}>
@@ -119,7 +119,7 @@ class Planner extends Component {
             <div className="ThreeTerms">
                 {item.length >= 1 ? <table className="table table-bordered text-black float-left" style={{width: "30%"}}>
                     <thead>
-                        <tr>
+                        <tr key={item[0].name}>
                             <span>
                                 <h5>{item[0].name}</h5>
                             </span>
@@ -129,7 +129,7 @@ class Planner extends Component {
                 </table>  : null}
                 {item.length >= 2 ? <table className="table table-bordered text-black float-mid" style={{width: "30%"}}>
                     <thead>
-                        <tr>
+                        <tr key={item[1].name}>
                             <span>
                                 <h5>{item[1].name}</h5>
                             </span>
@@ -139,7 +139,7 @@ class Planner extends Component {
                 </table>  : null}
                 {item.length >= 3 ? <table className="table table-bordered text-black float-right" style={{width: "30%"}}>
                     <thead>
-                        <tr>
+                        <tr key={item[2].name}>
                             <span>
                                 <h5>{item[2].name}</h5>
                             </span>
@@ -153,13 +153,13 @@ class Planner extends Component {
 
     render(){
         return (
-            <div>
-                <ul>
+            <div data-testid="planner">
+                {/* <ul> */}
                     {this.renderTerms()}
-                </ul>
+                {/* </ul> */}
                 <div className="container2">
                     <div className="vertical-center">
-                        <button className="btn btn-secondary" onClick={() => this.deleteTerm()}> 
+                        <button className="btn btn-secondary" onClick={() => this.createTerm()}> 
                             Add Term
                         </button>
                         &nbsp;

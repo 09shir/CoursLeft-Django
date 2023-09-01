@@ -140,24 +140,24 @@ const AddCourse = () => {
     }
 
     if (isLoading) {
-        return <div className="App">Loading...</div>;
+        return <div data-testid="loading" className="App">Loading...</div>;
     }
 
     const mappingTerms = () => {
         const storedTerms = terms.terms
         return storedTerms?.map((term) => (
-            <option value={term.id}>{term.name}</option>
+            <option key={term.id} value={term.id}>{term.name}</option>
         ))
     }
 
     const mappingCourses = () => {
         return coursesList2?.map((course) => (
-            <option value={parseFullNameToCourseID(course)}>{course}</option>
+            <option key={course} value={parseFullNameToCourseID(course)}>{course}</option>
         ))
     }
 
     return (
-        <div>
+        <div data-testid="addCourse">
             <br></br>
             <h5>Add Course</h5>
             <br></br>

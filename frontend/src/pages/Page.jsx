@@ -8,7 +8,7 @@ import Col from 'react-bootstrap/Col';
 
 export default function Page () {
     return (
-        <div>
+        <div data-testid="page">
             <Header/>
             <br></br>
             <div>
