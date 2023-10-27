@@ -14,8 +14,15 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { IconButton } from '@mui/material';
 import { Tooltip } from '@mui/material';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { plannerRefresh } from "../redux/refresh"
+
 
 const AddCourse = () => {
+
+    const boardID = useSelector((state) => state.boardCounter.board);
+    const refreshPlannerListener = useSelector((state) => state.refreshBoard.value);
+    const dispatch = useDispatch();
 
     const [terms, setTerms] = useState([])
     const [isLoading, setLoading] = useState(true)
@@ -34,10 +41,13 @@ const AddCourse = () => {
     useEffect(() => {
         axios
           .get("/api/terms/")
-          .then((res) => {setTerms({ terms: res.data }); setLoading(false);})
+          .then((res) => {
+            res.data = res.data.filter((item) => item.board === boardID)
+            setTerms({ terms: res.data }); 
+            setLoading(false);})
           .catch((err) => console.log(err));
           
-    }, []);
+    }, [refreshPlannerListener, boardID]);
 
     const [values, setValues] = useState({
         courseName: '',
@@ -103,7 +113,7 @@ const AddCourse = () => {
             if (count < 6 && !repeat){
                 axios
                     .post(`/api/courses/`, ret)
-                    .then((res) => window.location.href='/')
+                    .then((res) => dispatch(plannerRefresh()))
             }
             else {
                 // warning term full 
@@ -221,7 +231,7 @@ const AddCourse = () => {
                             <p><b>
                                 {/* {values.courseName.toUpperCase()}'s Available Terms ({availabilitySection.pastTerms[availabilitySection.pastTerms.length-1][0]} ~ {}
                                 {availabilitySection.pastTerms[0][0]}):  */}
-                                {values.courseName.toUpperCase()}'s Available Terms (2022-2023)
+                                {values.courseName.toUpperCase()}'s Available Terms (2022-2024)
                                 {/* {values.courseName.toUpperCase()}'s availability since 2014: */}
                             </b></p>
                             {availabilitySection.pastTerms.length === 0 ? <>Never Offered</> : 

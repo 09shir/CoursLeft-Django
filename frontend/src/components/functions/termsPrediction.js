@@ -2,6 +2,8 @@
 // coursePrevTerms
 // predict
 
+import { getCurrentYear } from './terms'
+
 // input Spring 2024
 function splitYearTerm(data){
     var year = ''; 
@@ -62,10 +64,14 @@ async function coursePrevTerms(course_input, pastTwoYears){
     const term = ["fall", "summer", "spring"]
     let year = []
     if (pastTwoYears){
-        year = [2023,2022]
+        let currentYear = getCurrentYear()
+        year = [2024, currentYear,currentYear-1]
+        console.log('years', year)
     }
     else{
-        year = [2023,2022,2021,2020,2019,2018,2017,2016,2015,2014]
+        for (let i = getCurrentYear(); i > 2013; i--){
+            year.push(i)
+        }
     }
 
     var ret = []

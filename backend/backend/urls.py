@@ -22,6 +22,7 @@ from planner import views
 router = routers.DefaultRouter()
 router.register(r'terms', views.TermView, 'term')
 router.register(r'courses', views.CourseView, 'course')
+router.register(r'board', views.BoardView, 'board')
 
 urlpatterns = [
     path("admin/", admin.site.urls),

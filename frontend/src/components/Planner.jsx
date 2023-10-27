@@ -1,28 +1,35 @@
-import React, { Component } from 'react'
+// import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { getNextTerm, getCurrentTerm, getCurrentYear } from './functions/terms'
 import axios from "axios";
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import { IconButton } from '@mui/material';
 import { Tooltip } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { plannerRefresh } from "../redux/refresh"
 
-class Planner extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          terms: [],
-          termsMapping: [],
-          courses: [],
-        };
-      }
+const Planner = () => {
 
-    componentDidMount() {
-        this.refreshPlanner();
-    }
+    const [terms, setTerms] = useState([]);
+    const [termsMapping, setTermsMapping] = useState([]);
+    const [courses, setCourses] = useState([]);
 
-    refreshPlanner = () => {
+    const boardID = useSelector((state) => state.boardCounter.board);
+    const refreshPlannerListener = useSelector((state) => state.refreshBoard.value);
+    const dispatch = useDispatch();
+
+
+    useEffect(() => {
+        refreshPlanner();
+    },[boardID, refreshPlannerListener]);
+
+    const refreshPlanner = () => {
         axios
           .get("/api/terms/")
           .then((res) => {
+
+            res.data = res.data.filter((item) => item.board === boardID)
+
             // from [summer 2023, fall 2023, ... fall 2024]
 
             // to [[summer 2023, fall 2023, spring 2024]
@@ -39,62 +46,68 @@ class Planner extends Component {
                 newTerms.push(tmpTerms)
                 tmpTerms = []
             }
-            this.setState({ terms: res.data })
-            this.setState({ termsMapping: newTerms })
-            console.log(this.state.terms)
-            console.log(this.state.termsMapping)
+
+            setTerms(res.data)
+            setTermsMapping(newTerms)
+            console.log(terms)
+            console.log(termsMapping)
           })
           .catch((err) => console.log(err));
         axios
           .get("/api/courses/")
-          .then((res) => this.setState({ courses: res.data }))
+        //   .then((res) => this.setState({ courses: res.data }))
+          .then((res) => {setCourses(res.data)})
           .catch((err) => console.log(err));
-          
-    };
-    
-    handleTermDelete = (item) => {
-    axios
-        .delete(`/api/terms/${item.id}/`).catch(function (error) {
-            console.log("Deletion failed with error:" + error)})
-        .then((res) => window.location.href='/')
-    };
+    }
 
-    handleCourseDelete = (item) => {
+    // const handleTermDelete = (item) => {
+    //     axios
+    //         .delete(`/api/terms/${item.id}/`).catch(function (error) {
+    //             console.log("Deletion failed with error:" + error)})
+    //         .then((res) => window.location.href='/')
+    // };
+
+    const handleCourseDelete = (item) => {
         axios
             .delete(`/api/courses/${item.id}/`).catch(function (error) {
                 console.log("Failed to delete a course:" + error)})
-            .then((res) => this.refreshPlanner());
-        };
+            // .then((res) => refreshPlanner());
+            .then((res) => dispatch(plannerRefresh()))
+    };
 
-    createTerm = () => {
+    const createTerm = () => {
         let lastTerm = ''
-        if (this.state.terms.length === 0){
+        if (terms.length === 0){
             lastTerm = getCurrentTerm() + ' ' + getCurrentYear()
             console.log(lastTerm)
         }
         else{
-            lastTerm = this.state.terms[this.state.terms.length-1].name
+            lastTerm = terms[terms.length-1].name
         }
         const newTerm = getNextTerm(lastTerm)
-        const term = {name: newTerm}
+        const term = {
+            name: newTerm, 
+            board: boardID
+        }
         axios
             .post(`/api/terms/`, term)
-            .then((res) => window.location.href='/')
+            .then((res) => dispatch(plannerRefresh()))
     }
 
-    deleteTerm = () => {
-        if (this.state.terms.length === 0){
+    const deleteTerm = () => {
+        if (terms.length === 0){
             return
         }
-        const lastTerm = this.state.terms[this.state.terms.length-1]
+        const lastTerm = terms[terms.length-1]
         axios
             .delete(`/api/terms/${lastTerm.id}`).catch(function (error){
                 console.log("Failed to delete a term:" + error)})
-            .then((res) => this.refreshPlanner());
+            // .then((res) => refreshPlanner());
+            .then((res) => dispatch(plannerRefresh()))
     }
 
-    renderCourses = (term) => {
-        const items = this.state.courses.filter((item) => item.term === term.id)
+    const renderCourses = (term) => {
+        const items = courses.filter((item) => item.term === term.id)
         return items.map((item) => (
             <tr key={item.id}>
                 <span className='course-field-left'>
@@ -104,7 +117,7 @@ class Planner extends Component {
                     {/* <button className="btn btn-outline-danger"
                         onClick={() => this.handleCourseDelete(item)}> Delete </button> */}
                     <Tooltip placement="right" title={"Remove " + item.name}>
-                        <IconButton onClick={() => this.handleCourseDelete(item)}>
+                        <IconButton onClick={() => handleCourseDelete(item)}>
                             <BackspaceIcon fontSize="medium"/>
                         </IconButton>
                     </Tooltip>
@@ -113,8 +126,8 @@ class Planner extends Component {
         ))
     }
 
-    renderTerms = () => {
-        const items = [...this.state.termsMapping]
+    const renderTerms = () => {
+        const items = [...termsMapping]
         return items.map((item) => (
             <div className="ThreeTerms">
                 {item.length >= 1 ? <table className="table table-bordered text-black float-left" style={{width: "30%"}}>
@@ -124,7 +137,7 @@ class Planner extends Component {
                                 <h5>{item[0].name}</h5>
                             </span>
                         </tr>
-                        {this.renderCourses(item[0])}
+                        {renderCourses(item[0])}
                     </thead>
                 </table>  : null}
                 {item.length >= 2 ? <table className="table table-bordered text-black float-mid" style={{width: "30%"}}>
@@ -134,7 +147,7 @@ class Planner extends Component {
                                 <h5>{item[1].name}</h5>
                             </span>
                         </tr>
-                        {this.renderCourses(item[1])}
+                        {renderCourses(item[1])}
                     </thead>
                 </table>  : null}
                 {item.length >= 3 ? <table className="table table-bordered text-black float-right" style={{width: "30%"}}>
@@ -144,34 +157,32 @@ class Planner extends Component {
                                 <h5>{item[2].name}</h5>
                             </span>
                         </tr>
-                        {this.renderCourses(item[2])}
+                        {renderCourses(item[2])}
                     </thead>
                 </table>  : null}
             </div>
         ))
     }
 
-    render(){
-        return (
-            <div data-testid="planner">
-                {/* <ul> */}
-                    {this.renderTerms()}
-                {/* </ul> */}
-                <div className="container2">
-                    <div className="vertical-center">
-                        <button className="btn btn-secondary" onClick={() => this.createTerm()}> 
-                            Add Term
-                        </button>
-                        &nbsp;
-                        <button className="btn btn-secondary" onClick={() => this.deleteTerm()}> 
-                            Delete Term
-                        </button>
-                    </div>
+    return (
+        <div data-testid="planner">
+            {/* <ul> */}
+                {renderTerms()}
+            {/* </ul> */}
+            <div className="container2">
+                <div className="vertical-center">
+                    <button className="btn btn-secondary" onClick={() => createTerm()}> 
+                        Add Term
+                    </button>
+                    &nbsp;
+                    <button className="btn btn-secondary" onClick={() => deleteTerm()}> 
+                        Delete Term
+                    </button>
                 </div>
-                <br></br><br></br><br></br>
             </div>
-        )
-    }
+            <br></br><br></br><br></br>
+        </div>
+    )
 }
 
 export default Planner;
